@@ -1,5 +1,7 @@
 <?php
-/* Drupal Module: Path Access
+/* $Id$
+ *
+ * Drupal Module: Path Access
  * Restrict access to any drupal path on a per user role basis
  *
  * @author: Mike Carter <mike@ixis.co.uk>
