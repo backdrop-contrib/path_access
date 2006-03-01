@@ -27,6 +27,8 @@ function _path_access_stringquote(&$item1, $key) {
 function path_access_init() {
   global $user;
 
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
+
   $roles = $user->roles;
 
   // User #1 has all privileges:
