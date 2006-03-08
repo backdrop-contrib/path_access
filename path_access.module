@@ -136,7 +136,7 @@ function path_access_admin_role_configure($module = NULL, $delta = 0) {
 
         // Obtain role name for the page
         if(!$edit) {
-          $rolename = db_result(db_query("SELECT name FROM role WHERE rid = %d", $roleid));
+          $rolename = db_result(db_query("SELECT name FROM {role} WHERE rid = %d", $roleid));
           $pid = db_next_id('path_access');
           db_query("INSERT INTO {path_access} (pid, rid, pages, visibility) VALUES (%d, %d, '', '')", $pid, $roleid);
         } else {
