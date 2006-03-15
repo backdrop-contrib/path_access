@@ -57,7 +57,7 @@ function path_access_init() {
     $page_match = ($visibility xor preg_match($regexp, $path));
   }
   else {
-    $page_match = TRUE;
+    $page_match = FALSE;
   }
 
   if($page_match) {
