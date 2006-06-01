@@ -32,6 +32,8 @@ Details
 When access is denied to certain users they will see the 403 error 'Access Denied'
 page which you have defined in the Drupal core settings. This can be changed at ?q=admin/settings
 
+By default the module will allow both anonymous and authenticated users to access pages as usual.
+
 
 Settings
 ========
