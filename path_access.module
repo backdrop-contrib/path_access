@@ -31,20 +31,19 @@ function path_access_init() {
 
   drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
 
-  $roles = $user->roles;
-
   // User #1 has all privileges:
   if ($user->uid == 1) {
     return 1;
   }
 
+  $roles = $user->roles;
   array_walk($roles, '_path_access_stringquote');
   $rolenames = implode(",", $roles);
   $result = db_query("SELECT pages, visibility FROM {path_access} pa INNER JOIN {role} r ON r.rid = pa.rid WHERE r.name IN ($rolenames)");
 
   $visibility = 1;
   $pages = '';
-  while ($role = db_fetch_object($result)) {
+  while($role = db_fetch_object($result)) {
     $pages .= $role->pages . "\n";
     $visibility = $role->visibility AND $visibility;
   }
@@ -129,6 +128,7 @@ function path_access_admin_role_configure($module = NULL, $delta = 0) {
 
       drupal_set_message('The path access configuration has been saved.');
       drupal_goto('admin/access/path');
+      break;
 
     default:
       if (!$edit) {
@@ -172,4 +172,3 @@ function path_access_admin_role_configure($module = NULL, $delta = 0) {
       return drupal_get_form('pathaccess_admin_configure', $form);
   }
 }
-?>
