@@ -1,0 +1,36 @@
+<?php
+// $Id $
+
+function path_access_install() {
+  drupal_set_message('Installing Path Access');
+  switch ($GLOBALS['db_type']) {
+      case 'mysqli':
+      case 'mysql':
+        db_query("CREATE TABLE `path_access` (
+                  `pid` int(10) NOT NULL default '0',
+                  `rid` int(10) NOT NULL default '0',
+                  `pages` text,
+                  `visibility` tinyint(1) NOT NULL default '0',
+                  PRIMARY KEY  (`pid`),
+                  KEY `rid` (`rid`)
+                  );");
+
+        // By default grant access to all anon and authenticated users
+        db_query("INSERT INTO {path_access} (pid, rid, pages, visibility) VALUES (%d, 1, '', 0)", db_next_id('path_access'));
+        db_query("INSERT INTO {path_access} (pid, rid, pages, visibility) VALUES (%d, 2, '', 0)", db_next_id('path_access'));
+
+        // ensure the path.module is active
+        db_query("UPDATE `system` SET status = 1 where name = 'path'");
+
+        $success = TRUE;
+        break;
+  }
+
+  if ($success) {
+    drupal_set_message(t('Path Access module installed tables successfully.'));
+  }
+  else {
+    drupal_set_message(t('The installation of Path Access module was unsuccessful.'), 'error');
+  }
+}
+
