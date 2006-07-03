@@ -63,6 +63,7 @@ function path_access_init() {
   }
 
   if($page_match) {
+    $GLOBALS['locale'] = locale_initialize();//line added to initialize locale
     drupal_access_denied();
     exit;
   }
