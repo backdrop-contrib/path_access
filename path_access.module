@@ -36,11 +36,6 @@ function path_access_init() {
     return 1;
   }
 
-  $roles = $user->roles;
-  array_walk($roles, '_path_access_stringquote');
-  $rolenames = implode(",", $roles);
-  $result = db_query("SELECT pages, visibility FROM {path_access} pa INNER JOIN {role} r ON r.rid = pa.rid WHERE r.name IN ($rolenames)");
-
   $role = module_invoke('role', 'weights_get_highest', $user->roles);
   $result = db_query("SELECT pages, visibility FROM {path_access} pa INNER JOIN {role} r ON r.rid = pa.rid WHERE r.name = '%s'", $role['name']);
 
@@ -54,7 +49,9 @@ function path_access_init() {
 
   // Match path if necessary
   if ($pages) {
+    // The current page
     $path = drupal_get_path_alias($_GET['q']);
+
     $regexp = '/^('. preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1'. variable_get('site_frontpage', 'node') .'\2'), preg_quote($pages, '/')) .')$/';
     $page_match = ($visibility xor preg_match($regexp, $path));
   }
@@ -62,8 +59,11 @@ function path_access_init() {
     $page_match = FALSE;
   }
 
-  if($page_match) {
-    $GLOBALS['locale'] = locale_initialize();//line added to initialize locale
+
+  // Check that the current page is not a protected page before blocking user
+  if($page_match && !path_access_protected_pages($path)) {
+    // Initialize locale
+    $GLOBALS['locale'] = locale_initialize();
     drupal_access_denied();
     exit;
   }
@@ -175,4 +175,13 @@ function path_access_admin_role_configure($module = NULL, $delta = 0) {
 
       return drupal_get_form('pathaccess_admin_configure', $form);
   }
+}
+
+/*
+ * Protected Pages can never be restricted using path_access
+ */
+function path_access_protected_pages($page) {
+  $pages = array('logout');
+
+  return in_array($page, $pages);
 }
