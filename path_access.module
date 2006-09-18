@@ -36,7 +36,7 @@ function path_access_init() {
     return 1;
   }
 
-  $role = module_invoke('role', 'weights_get_highest', $user->roles);
+  $role = module_invoke('role_weights', 'get_highest', $user->roles);
   $result = db_query("SELECT pages, visibility FROM {path_access} pa INNER JOIN {role} r ON r.rid = pa.rid WHERE r.name = '%s'", $role['name']);
 
   $visibility = 1;
