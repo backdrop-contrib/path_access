@@ -1,4 +1,7 @@
 ; $Id$
 name = Path Access
 description = Restrict access to any paths by user role
-dependencies = path
+package = Access control
+dependencies[] = path
+version = VERSION
+core = 6.x

@@ -1,31 +1,45 @@
 <?php
 // $Id $
 
+function path_access_schema() {
+  $schema['path_access'] = array(
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'rid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pages' => array(
+        'type' => 'text',
+      ),
+      'visibility' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'rid' => array('rid'),
+    ),
+    'primary key' => array('pid'),
+  );
+  return $schema;
+}
+
 function path_access_install() {
-  drupal_set_message('Installing Path Access');
-  switch ($GLOBALS['db_type']) {
-      case 'mysqli':
-      case 'mysql':
-        db_query("CREATE TABLE `path_access` (
-                  `pid` int(10) NOT NULL default '0',
-                  `rid` int(10) NOT NULL default '0',
-                  `pages` text,
-                  `visibility` tinyint(1) NOT NULL default '0',
-                  PRIMARY KEY  (`pid`),
-                  KEY `rid` (`rid`)
-                  );");
-
-        // By default grant access to all anon and authenticated users
-        db_query("INSERT INTO {path_access} (pid, rid, pages, visibility) VALUES (%d, 1, '', 0)", db_next_id('path_access'));
-        db_query("INSERT INTO {path_access} (pid, rid, pages, visibility) VALUES (%d, 2, '', 0)", db_next_id('path_access'));
-
-        // ensure the path.module is active
-        db_query("UPDATE `system` SET status = 1 where name = 'path'");
-
-        $success = TRUE;
-        break;
+  $res = drupal_install_schema('path_access');
+  $success = TRUE;
+  foreach($res as $v) {
+    if($v['success'] !== TRUE) {
+      $success = FALSE;
+      break;
+    }
   }
-
   if ($success) {
     drupal_set_message(t('Path Access module installed tables successfully.'));
   }
@@ -34,3 +48,21 @@ function path_access_install() {
   }
 }
 
+function path_access_uninstall() {
+  $res = drupal_uninstall_schema('path_access');
+  $success = TRUE;
+  foreach($res as $v) {
+    if($v['success'] !== TRUE) {
+      $success = FALSE;
+      break;
+    }
+  }
+  if ($success) {
+    drupal_set_message(t('Path Access module uninstalled tables successfully.'));
+  }
+  else {
+    drupal_set_message(t('The uninstallation of Path Access module was unsuccessful.'), 'error');
+  }
+}
+
+// vim: set ft=php syntax=php expandtab ts=2 sw=2 autoindent smartindent:

@@ -1,5 +1,6 @@
 Module: Path Access
 Author: Mike Carter <mike@ixis.co.uk>
+D6 port: CSÉCSY László <boobaa@kybest.hu>
 
 Description
 ===========
@@ -20,9 +21,6 @@ Installation
 Simply copy path_access.module to the modules directory of your Drupal
 installation, and enable it in the administration tools.
 
-You will also need to run the accompanying SQL script to create a new
-table called 'path_access'.
-
 Note that path_access is an extension to the path module, which must also
 be enabled.
 
@@ -40,7 +38,7 @@ Settings
 You can configure what pages are visible/not visible to each of your user roles
 via the 'urls' tab of the 'access control' section of the Drupal Administration.
 
-Visit ?q=admin/access/path to edit the settings for each role group.
+Visit ?q=admin/user/pathaccess to edit the settings for each role group.
 
 Page visibility configuration is carried out in exactly the same way as block
 visibility in Drupal core.
@@ -48,6 +46,6 @@ visibility in Drupal core.
 
 Credits
 =======
-This module is the work of Mike Carter <mike@ixis.co.uk>. Please use the Druapl
+This module is the work of Mike Carter <mike@ixis.co.uk>. Please use the Drupal
 support forums for queries on usage. http://drupal.org/forum
 
