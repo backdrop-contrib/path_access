@@ -32,9 +32,10 @@ function path_access_init() {
   if ($user->uid == 1) {
     return 1;
   }
-  // This one does not work in D6 without the role_weights module, so the user's last role_id will be taken into account.
-//  $role = module_exists('role_weights') ? module_invoke('role_weights', 'get_highest', $user->roles) : array('name' => $user->roles);
-  foreach($user->roles as $k => $v) {
+  // This one does not work in D6 without the role_weights module, so the user's
+  // last role_id will be taken into account.
+  // $role = module_exists('role_weights') ? module_invoke('role_weights', 'get_highest', $user->roles) : array('name' => $user->roles);
+  foreach ($user->roles as $k => $v) {
     $role = $k;
   }
 
@@ -42,18 +43,18 @@ function path_access_init() {
 
   $visibility = 1;
   $pages = '';
-  while($role = db_fetch_object($result)) {
+  while ($role = db_fetch_object($result)) {
     $pages .= $role->pages . "\n";
-    $visibility = $role->visibility AND $visibility;
+    $visibility = $role->visibility && $visibility;
   }
-  $visibility = $visibility > 0 ? true : false;
+  $visibility = ($visibility > 0) ? TRUE : FALSE;
 
   // Match path if necessary.
   if ($pages) {
     // The current page.
     $path = drupal_get_path_alias(check_plain($_GET['q']));
 
-    $regexp = '/^('. preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1'. variable_get('site_frontpage', 'node') .'\2'), preg_quote($pages, '/')) .')$/';
+    $regexp = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . variable_get('site_frontpage', 'node') . '\2'), preg_quote($pages, '/')) . ')$/';
     $page_match = ($visibility xor preg_match($regexp, $path));
   }
   else {
@@ -61,7 +62,7 @@ function path_access_init() {
   }
 
   // Check that the current page is not a protected page before blocking user.
-  if($page_match && !path_access_protected_pages($path)) {
+  if ($page_match && !path_access_protected_pages($path)) {
     drupal_access_denied();
     exit;
   }
@@ -72,6 +73,7 @@ function path_access_init() {
  */
 function path_access_menu() {
   $items = array();
+
   $items['admin/user/pathaccess/edit'] = array(
     'title' => t('configure role paths'),
     'page callback' => 'path_access_admin_role_configure',
@@ -85,6 +87,7 @@ function path_access_menu() {
     'access arguments' => array('administer url aliases'),
     'type' => MENU_NORMAL_ITEM,
   );
+
   return $items;
 }
 
@@ -97,9 +100,10 @@ function path_access_admin_roles() {
 
   $header = array(t('User Role'), t('Operations'));
   while ($role = db_fetch_object($result)) {
-    $rows[] = array($role->name, l(t('edit'), 'admin/user/pathaccess/edit/'. $role->rid));
+    $rows[] = array($role->name, l(t('edit'), 'admin/user/pathaccess/edit/' . $role->rid));
   }
   $output = theme('table', $header, $rows);
+
   return $output;
 }
 
@@ -107,15 +111,16 @@ function path_access_admin_roles() {
  * Menu callback; displays the configuration form.
  */
 function path_access_admin_role_configure() {
-  $roleid = (integer)arg(4);
+  $roleid = (integer) arg(4);
 
   $settings = db_fetch_array(db_query('SELECT * FROM {path_access} pa INNER JOIN {role} r ON pa.rid = r.rid WHERE pa.rid = %d', $roleid));
 
   // Obtain role name for the page if there is no existing path settings for this role id.
-  if(!$settings) {
+  if (!$settings) {
     $rolename = db_result(db_query('SELECT name FROM {role} WHERE rid = %d', $roleid));
     db_query("INSERT INTO {path_access} (rid, pages, visibility) VALUES (%d, '', '')", $roleid);
-  } else {
+  }
+  else {
     $rolename = $settings['name'];
   }
 
@@ -158,7 +163,7 @@ function path_access_admin_configure_form_validate($form_id, &$form_state) {
   // Prevent the logout page from being listed.
   $pages = explode("\n", $form_state['values']['pages']);
 
-  if(in_array('logout', $pages)) {
+  if (in_array('logout', $pages)) {
     form_set_error('pages', t('You cannot block access to the %logout page.', array('%logout' => 'logout')));
   }
 }
@@ -180,5 +185,3 @@ function path_access_protected_pages($page) {
   $pages = array('logout');
   return in_array($page, $pages);
 }
-
-// vim: set ft=php syntax=php expandtab ts=2 sw=2 autoindent smartindent:

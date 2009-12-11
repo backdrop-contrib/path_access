@@ -1,5 +1,5 @@
 <?php
-// $Id $
+// $Id$
 
 function path_access_schema() {
   $schema['path_access'] = array(
@@ -34,8 +34,8 @@ function path_access_schema() {
 function path_access_install() {
   $res = drupal_install_schema('path_access');
   $success = TRUE;
-  foreach($res as $v) {
-    if($v['success'] !== TRUE) {
+  foreach ($res as $v) {
+    if ($v['success'] !== TRUE) {
       $success = FALSE;
       break;
     }
@@ -51,8 +51,8 @@ function path_access_install() {
 function path_access_uninstall() {
   $res = drupal_uninstall_schema('path_access');
   $success = TRUE;
-  foreach($res as $v) {
-    if($v['success'] !== TRUE) {
+  foreach ($res as $v) {
+    if ($v['success'] !== TRUE) {
       $success = FALSE;
       break;
     }
@@ -64,5 +64,3 @@ function path_access_uninstall() {
     drupal_set_message(t('The uninstallation of Path Access module was unsuccessful.'), 'error');
   }
 }
-
-// vim: set ft=php syntax=php expandtab ts=2 sw=2 autoindent smartindent:
