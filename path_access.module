@@ -1,12 +1,13 @@
 <?php
-/* $Id$
- *
- * Drupal Module: Path Access
- * Restrict access to any drupal path on a per user role basis
+// $Id$
+
+/**
+ * @file
+ * Restricts access to any Drupal path on a per-role basis.
  *
  * @author: Mike Carter <mike@ixis.co.uk>
  * @author: CSÉCSY László <boobaa.no@spam.kybest.hu>
- * @usage: ?q=admin/user/pathaccess to configure path restrictions per role.
+ * @usage: ?q=admin/user/pathaccess to configure path restrictions for each role.
  */
 
 /**
