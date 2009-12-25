@@ -64,3 +64,11 @@ function path_access_uninstall() {
     drupal_set_message(t('The uninstallation of Path Access module was unsuccessful.'), 'error');
   }
 }
+
+function path_access_update_6100() {
+  $ret = array();
+  
+  $ret[] = update_sql("ALTER {path_access} CHANGE pid pid SERIAL NOT NULL AUTO_INCREMENT");
+  
+  return $ret;
+}
