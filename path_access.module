@@ -26,7 +26,7 @@ function path_access_help($path, $arg) {
 function path_access_init() {
   global $user;
 
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
+  _drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
 
   // User #1 has all privileges:
   if ($user->uid == 1) {
