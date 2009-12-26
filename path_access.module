@@ -5,7 +5,7 @@
  * @file
  * Restricts access to any Drupal path on a per-role basis.
  *
- * @author: Mike Carter <mike@ixis.co.uk>
+ * @author: Mike Carter <www.ixis.co.uk>
  * @author: CSÉCSY László <boobaa.no@spam.kybest.hu>
  * @usage: ?q=admin/user/pathaccess to configure path restrictions for each role.
  */
