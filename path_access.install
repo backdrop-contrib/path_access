@@ -68,7 +68,7 @@ function path_access_uninstall() {
 function path_access_update_6100() {
   $ret = array();
   
-  $ret[] = update_sql("ALTER {path_access} CHANGE pid pid SERIAL NOT NULL AUTO_INCREMENT");
+  $ret[] = update_sql("ALTER TABLE {path_access} CHANGE pid pid SERIAL NOT NULL AUTO_INCREMENT");
   
   return $ret;
 }
