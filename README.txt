@@ -47,7 +47,6 @@ visibility in Drupal core.
 
 Credits
 =======
-<<<<<<< README.txt
 This module is the work of Mike Carter <http://www.ixis.co.uk/contact>. Please use the Drupal
 project issue queue for support queries on usage. http://drupal.org/project/issues/path_access
 
