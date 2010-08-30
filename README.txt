@@ -1,5 +1,5 @@
 Module: Path Access
-Author: Mike Carter <www.ixis.co.uk>
+Author: Mike Carter <http://www.ixis.co.uk/contact>
 D6 port: CSÉCSY László <boobaa@kybest.hu>
 
 Description
@@ -18,8 +18,8 @@ groups from whole sections of a site using wildcards.
 
 Installation
 ============
-Simply copy path_access folder to the /sites/all/modules directory of your Drupal
-installation, and enable it in the administration tools.
+Simply copy path_access folder to the modules directory of your Drupal
+installation, and enable it in the administration > build > modules.
 
 Note that path_access is an extension to the path module, which must also
 be enabled.
@@ -47,7 +47,8 @@ visibility in Drupal core.
 
 Credits
 =======
-This module is the work of Mike Carter @ixis.co.uk. Please use the Drupal
-project issue queue for support queries on usage.
-http://drupal.org/project/issues/path_access
+<<<<<<< README.txt
+This module is the work of Mike Carter <http://www.ixis.co.uk/contact>. Please use the Drupal
+project issue queue for support queries on usage. http://drupal.org/project/issues/path_access
+
 
