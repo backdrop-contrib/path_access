@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function path_access_schema() {
   $schema['path_access'] = array(

@@ -1,4 +1,3 @@
-; $Id$
 name = Path Access
 description = Restrict access to any paths by user role
 package = Access control
