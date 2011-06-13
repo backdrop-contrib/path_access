@@ -1,6 +1,7 @@
 Module: Path Access
 Author: Mike Carter <http://www.ixis.co.uk/contact>
 D6 port: CSÉCSY László <boobaa@kybest.hu>
+D7 port: Chris Burgess <http://www.giantrobot.co.nz/>
 
 Description
 ===========
@@ -39,7 +40,7 @@ Settings
 You can configure what pages are visible/not visible to each of your user roles
 from the Drupal Users Administration section.
 
-Visit ?q=admin/user/pathaccess to edit the settings for each role group.
+Visit ?q=admin/people/pathaccess to edit the settings for each role group.
 
 Page visibility configuration is carried out in exactly the same way as block
 visibility in Drupal core.

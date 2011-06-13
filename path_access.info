@@ -1,5 +1,8 @@
 name = Path Access
 description = Restrict access to any paths by user role
 package = Access control
-core = 6.x
+core = 7.x
+dependencies[] = chain_menu_access
 dependencies[] = path
+configure = admin/people/pathaccess
+files[] = path_access.module

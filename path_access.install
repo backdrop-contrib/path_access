@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implementats of hook_schema().
+ */
 function path_access_schema() {
   $schema['path_access'] = array(
     'fields' => array(
@@ -30,44 +33,31 @@ function path_access_schema() {
   return $schema;
 }
 
-function path_access_install() {
-  $res = drupal_install_schema('path_access');
-  $success = TRUE;
-  foreach ($res as $v) {
-    if ($v['success'] !== TRUE) {
-      $success = FALSE;
-      break;
-    }
-  }
-  if ($success) {
-    drupal_set_message(t('Path Access module installed tables successfully.'));
-  }
-  else {
-    drupal_set_message(t('The installation of Path Access module was unsuccessful.'), 'error');
-  }
-}
-
-function path_access_uninstall() {
-  $res = drupal_uninstall_schema('path_access');
-  $success = TRUE;
-  foreach ($res as $v) {
-    if ($v['success'] !== TRUE) {
-      $success = FALSE;
-      break;
-    }
-  }
-  if ($success) {
-    drupal_set_message(t('Path Access module uninstalled tables successfully.'));
-  }
-  else {
-    drupal_set_message(t('The uninstallation of Path Access module was unsuccessful.'), 'error');
-  }
-}
-
+/**
+ * Update 6100: Set {path_access}.pid SERIAL NOT NULL AUTO_INCREMENT.
+ */
 function path_access_update_6100() {
   $ret = array();
-  
   $ret[] = update_sql("ALTER TABLE {path_access} CHANGE pid pid SERIAL NOT NULL AUTO_INCREMENT");
-  
   return $ret;
+}
+
+/**
+ * Update 7100: Increase path_access' weight so that its the last thing that runs.
+ */
+function path_access_update_7100() {
+  db_update('system')
+    ->fields(array('weight' => 1001))
+    ->condition('name', 'path_access')
+    ->execute();
+}
+
+/**
+ * Implements hook_install().
+ */
+function path_access_install() {
+  db_update('system')
+    ->fields(array('weight' => 1001))
+    ->condition('name', 'path_access')
+    ->execute();
 }
