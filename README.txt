@@ -40,7 +40,7 @@ Settings
 You can configure what pages are visible/not visible to each of your user roles
 from the Drupal Users Administration section.
 
-Visit ?q=admin/people/pathaccess to edit the settings for each role group.
+Visit ?q=admin/config/people/pathaccess to edit the settings for each role group.
 
 Page visibility configuration is carried out in exactly the same way as block
 visibility in Drupal core.

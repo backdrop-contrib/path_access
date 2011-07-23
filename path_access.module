@@ -7,7 +7,7 @@
  * @author: Mike Carter <www.ixis.co.uk>
  * @author: CSÉCSY László <boobaa.no@spam.kybest.hu>
  * @author: Chris Burgess (@grobot) <www.giantrobot.co.nz>
- * @usage: ?q=admin/people/pathaccess to configure path restrictions for each role.
+ * @usage: ?q=admin/config/people/pathaccess to configure path restrictions for each role.
  */
 
 /**
@@ -15,7 +15,7 @@
  */
 function path_access_help($path, $arg) {
   switch ($path) {
-    case 'admin/people/pathaccess':
+    case 'admin/config/people/pathaccess':
       return t('Each user role can be granted or denied access to any url paths. This is a crude but straight forward way to restrict groups of nodes/pages to certain users using only the paths associated with the pages. Page access is not limited to node pages only, anything can be controlled using paths.');
   }
 }
@@ -38,19 +38,18 @@ function path_access_menu_alter(&$items) {
 function path_access_menu() {
   $items = array();
 
-  $items['admin/people/pathaccess/edit'] = array(
-    'title' => t('configure role paths'),
-    'page callback' => 'path_access_admin_role_configure',
-    'access arguments' => array('administer url aliases'),
-    'type' => MENU_CALLBACK,
-  );
-  $items['admin/people/pathaccess'] = array(
+  $items['admin/config/people/pathaccess'] = array(
     'title' => t('Path Access'),
     'description' => t('Define what paths a user role can access.'),
     'page callback' => 'path_access_admin_roles',
-    'access arguments' => array('administer url aliases'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 30,
+    'access arguments' => array('administer permissions'),
+  );
+  $items['admin/config/people/pathaccess/edit/%user_role'] = array(
+    'title' => t('configure role paths'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('path_access_admin_configure_form', 5),
+    'access arguments' => array('administer permissions'),
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -108,7 +107,7 @@ function path_access_admin_roles() {
   $result = db_query('SELECT * FROM {role} ORDER BY name');
   $table['header'] = array(t('User Role'), t('Operations'));  
   foreach ($result as $role) {
-    $table['rows'][] = array($role->name, l(t('edit'), 'admin/people/pathaccess/edit/' . $role->rid));
+    $table['rows'][] = array($role->name, l(t('edit'), 'admin/config/people/pathaccess/edit/' . $role->rid));
   }
   $output = theme('table', $table);
 
@@ -116,31 +115,19 @@ function path_access_admin_roles() {
 }
 
 /**
- * Menu callback; displays the configuration form.
- */
-function path_access_admin_role_configure() {
-  $roleid = (integer) arg(4);
-
-  $settings = db_query('SELECT * FROM {path_access} pa INNER JOIN {role} r ON pa.rid = r.rid WHERE pa.rid = :rid', array(':rid' => $roleid))->fetchObject();
-
-  // Obtain role name for the page if there is no existing path settings for this role id.
-  if (!$settings) {
-    $rolename = db_query('SELECT name FROM {role} WHERE rid = :rid', array(':rid' => $roleid))->fetchField();
-    db_query("INSERT INTO {path_access} (rid, pages, visibility) VALUES (:rid, '', 0)", array(':rid' => $roleid));
-  }
-  else {
-    $rolename = $settings->name;
-  }
-
-  drupal_set_title(t("Path access for '@role' role", array('@role' => $rolename)));
-
-  return drupal_get_form('path_access_admin_configure_form', $settings);
-}
-
-/**
  * Define role access form.
  */
-function path_access_admin_configure_form($form, &$form_state) {
+function path_access_admin_configure_form($form, &$form_state, $role) {
+
+  $settings = db_query('SELECT * FROM {path_access} pa INNER JOIN {role} r ON pa.rid = r.rid WHERE pa.rid = :rid', array(':rid' => $role->rid))->fetchObject();
+
+  // Set up the database entry ready for updating.
+  if (!$settings) {
+    db_query("INSERT INTO {path_access} (rid, pages, visibility) VALUES (:rid, '', 0)", array(':rid' => $role->rid));
+  }
+
+  drupal_set_title(t("Path access for '@role' role", array('@role' => $role->name)));
+
   $form['page_vis_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Page specific visibility settings'),
@@ -150,12 +137,12 @@ function path_access_admin_configure_form($form, &$form_state) {
     '#type' => 'radios',
     '#title' => t('Allow users to view specific pages'),
     '#options' => array(t('Access every page except the listed pages.'), t('Access only the listed pages.')),
-    '#default_value' => ( isset($form_state['build_info']['args'][0]->visibility) ? $form_state['build_info']['args'][0]->visibility : '' ),
+    '#default_value' => !empty($settings->visibility)? $settings->visibility : '',
   );
   $form['page_vis_settings']['pages'] = array(
     '#type' => 'textarea',
     '#title' => t('Pages'),
-    '#default_value' => ( isset($form_state['build_info']['args'][0]->pages) ? $form_state['build_info']['args'][0]->pages : '' ),
+    '#default_value' =>!empty($settings->pages)? $settings->pages : '',
     '#description' => t("Enter one page per line as a path. The '*' character is a wildcard. Example paths are '<em>blog</em>' for the blog page and '<em>blog/*</em>' for every personal blog. '<em>&lt;front&gt;</em>' is the front page."),
   );
   $form['submit'] = array(
@@ -164,7 +151,7 @@ function path_access_admin_configure_form($form, &$form_state) {
   );
   $form['rid'] = array(
     '#type' => 'value', 
-    '#value' => ( isset($form_state['build_info']['args'][0]->rid) ? $form_state['build_info']['args'][0]->rid : arg(4) ),
+    '#value' => $role->rid
   );
 
   return $form;
@@ -193,7 +180,7 @@ function path_access_admin_configure_form_submit($form_id, &$form_state) {
   db_query("UPDATE {path_access} SET visibility = :visibility, pages = :pages WHERE rid = :rid", array(':rid' => $form_state['values']['rid'], ':visibility' => $form_state['values']['visibility'], ':pages' => $form_state['values']['pages']));
 
   drupal_set_message(t('The path access configuration has been saved.'));
-  $form_state['redirect'] = 'admin/people/pathaccess';
+  $form_state['redirect'] = 'admin/config/people/pathaccess';
 }
 
 /**
