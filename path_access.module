@@ -7,8 +7,19 @@
  * @author: Mike Carter <www.ixis.co.uk>
  * @author: CSÉCSY László <boobaa.no@spam.kybest.hu>
  * @author: Chris Burgess (@grobot) <www.giantrobot.co.nz>
+ * @author: Tom Kirkpatrick (@mrfelton) <tom@systemseed.com>
  * @usage: ?q=admin/config/people/pathaccess to configure path restrictions for each role.
  */
+
+/**
+ * Show this block on every page except the listed pages.
+ */
+define('PATH_ACCESS_VISIBILITY_NOTLISTED', 0);
+
+/**
+ * Show this block on only the listed pages.
+ */
+define('PATH_ACCESS_VISIBILITY_LISTED', 1);
 
 /**
  * Implements hook_help().
@@ -65,35 +76,46 @@ function _path_access_check_permission() {
   if ($user->uid == 1) {
     return 1;
   }
-  // This one does not work in D6 without the role_weights module, so the user's
-  // last role_id will be taken into account.
-  // $role = module_exists('role_weights') ? module_invoke('role_weights', 'get_highest', $user->roles) : array('name' => $user->roles);
+
   foreach ($user->roles as $k => $v) {
     $role = $k;
   }
 
-  $visibility = 1;
+  $visibility = PATH_ACCESS_VISIBILITY_LISTED;
   $pages = '';
   $result = db_query('SELECT pages, visibility FROM {path_access} WHERE rid = :role', array( ':role' => $role ));
   foreach ($result as $role) {
     $pages .= $role->pages . "\n";
     $visibility = $role->visibility && $visibility;
   }
-  $visibility = ($visibility > 0) ? TRUE : FALSE;
+  $visibility = ($visibility > 0) ? PATH_ACCESS_VISIBILITY_LISTED : PATH_ACCESS_VISIBILITY_NOTLISTED;
 
   // Match path if necessary.
   if ($pages) {
-    // The current page.
-    $path = drupal_get_path_alias(check_plain($_GET['q']));
-    $regexp = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . variable_get('site_frontpage', 'node') . '\2'), preg_quote($pages, '/')) . ')$/';
-    $page_match = ($visibility xor preg_match($regexp, strtolower($path)));
+    // Convert path to lowercase. This allows comparison of the same path
+    // with different case. Ex: /Page, /page, /PAGE.
+    $pages = drupal_strtolower($pages);
+    // Convert the Drupal path to lowercase
+    $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    // Compare the lowercase internal and lowercase path alias (if any).
+
+    $page_match = drupal_match_path($path, $pages);
+    if ($path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+    }
+        
+    // When $visibility has a value of 0 (PATH_ACCESS_VISIBILITY_NOTLISTED),
+    // the block is displayed on all pages except those listed in $pages.
+    // When set to 1 (PATH_ACCESS_VISIBILITY_LISTED), it is displayed only on
+    // those pages listed in $pages.
+    $page_match = !($visibility xor $page_match);
   }
   else {
-    $page_match = FALSE;
+    $page_match = TRUE;
   }
-  
+
   // Check that the current page is not a protected page before blocking user.
-  if ($page_match && !path_access_protected_pages($path)) {
+  if (!$page_match && !path_access_protected_pages($path)) {
     return FALSE;
   }
   return TRUE;
