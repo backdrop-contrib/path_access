@@ -200,7 +200,7 @@ function path_access_admin_configure_form_validate($form_id, &$form_state) {
  */
 function path_access_admin_configure_form_submit($form_id, &$form_state) {
   db_query("UPDATE {path_access} SET visibility = :visibility, pages = :pages WHERE rid = :rid", array(':rid' => $form_state['values']['rid'], ':visibility' => $form_state['values']['visibility'], ':pages' => $form_state['values']['pages']));
-
+  menu_cache_clear_all();
   drupal_set_message(t('The path access configuration has been saved.'));
   $form_state['redirect'] = 'admin/config/people/pathaccess';
 }
