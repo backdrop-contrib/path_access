@@ -25,25 +25,8 @@ function path_access_help($path, $arg) {
  */
 function path_access_menu_alter(&$items) {
   foreach ($items as $path => &$item) {
-    // Default menu items don't necessarily have access arguments explicitly defined,
-    // and the default access callback is user_access which requires an access argument.
-    // In core, if access arguments have not been set, they are set to those of the parent
-    // item in _menu_router_build. We use a similar logic here to ensure that the access
-    // callback and arguments are set to those of the parent if they have not been explicitly
-    // defined on the item. This ensure that chain_menu_access_chain functions correctly
-    // (mrfelton).
-    if (isset($item['type']) && ($item['type'] == MENU_DEFAULT_LOCAL_TASK) && !isset($item['access callback'])) {
-      $parts = explode('/', $path, MENU_MAX_PARTS);
-      $number_parts = count($parts);
-      $parent_path = implode('/', array_slice($parts, 0, $number_parts-1));
-      if (isset($items[$parent_path]) && $parent = $items[$parent_path]) {
-        if (isset($parent['access callback'])) {
-          $item['access callback'] = $parent['access callback'];
-        }
-        if (!isset($item['access arguments']) && isset($parent['access arguments'])) {
-          $item['access arguments'] = $parent['access arguments'];
-        }
-      }
+    if (isset($item['type']) && $item['type'] == MENU_DEFAULT_LOCAL_TASK) {
+      continue;
     }
     chain_menu_access_chain($item, '_path_access_check_permission');
   }
