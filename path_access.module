@@ -86,7 +86,7 @@ function _path_access_check_permission() {
     // The current page.
     $path = drupal_get_path_alias(check_plain($_GET['q']));
     $regexp = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . variable_get('site_frontpage', 'node') . '\2'), preg_quote($pages, '/')) . ')$/';
-    $page_match = ($visibility xor preg_match($regexp, $path));
+    $page_match = ($visibility xor preg_match($regexp, strtolower($path)));
   }
   else {
     $page_match = FALSE;
