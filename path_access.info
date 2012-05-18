@@ -4,5 +4,5 @@ package = Access control
 core = 7.x
 dependencies[] = chain_menu_access
 dependencies[] = path
-configure = admin/people/pathaccess
+configure = admin/config/people/pathaccess
 files[] = path_access.module
