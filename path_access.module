@@ -36,10 +36,7 @@ function path_access_help($path, $arg) {
  */
 function path_access_menu_alter(&$items) {
   foreach ($items as $path => &$item) {
-    if (isset($item['type']) && $item['type'] == MENU_DEFAULT_LOCAL_TASK) {
-      continue;
-    }
-    chain_menu_access_chain($item, '_path_access_check_permission');
+    chain_menu_access_chain($path, '_path_access_check_permission');
   }
 }
 
