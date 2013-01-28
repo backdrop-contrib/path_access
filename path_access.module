@@ -36,7 +36,7 @@ function path_access_help($path, $arg) {
  */
 function path_access_menu_alter(&$items) {
   foreach ($items as $path => &$item) {
-    chain_menu_access_chain($item, '_path_access_check_permission');
+    chain_menu_access_chain($items, $path, '_path_access_check_permission');
   }
 }
 
