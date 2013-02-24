@@ -209,7 +209,7 @@ function path_access_admin_configure_form_submit($form_id, &$form_state) {
  */
 function path_access_protected_pages($page) {
   $pages = array(
-    'logout',
+    'user/logout',
   );
   return in_array($page, $pages);
 }
