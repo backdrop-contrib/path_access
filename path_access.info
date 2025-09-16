@@ -1,8 +1,12 @@
 name = Path Access
 description = Restrict access to any paths by user role
-package = Access control
-core = 7.x
+backdrop = 1.x
+type = module
+
 dependencies[] = chain_menu_access
-dependencies[] = path
-configure = admin/config/people/pathaccess
-files[] = path_access.module
+configure = admin/config/people/path-access
+
+package = Access Control
+tags[] = Access
+tags[] = URL Handling
+tags[] = User Roles

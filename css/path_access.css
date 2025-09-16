@@ -1,0 +1,8 @@
+.logged-in {
+  li[class*="menu"] {
+    &:has(a[href^="/user/login"]) {
+      display: none;
+    }
+  }
+
+} 

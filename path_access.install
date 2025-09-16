@@ -1,63 +1,86 @@
 <?php
+/**
+ * @file
+ * Schema, install and updates.
+ */
 
 /**
- * Implementats of hook_schema().
+ * Implements hook_update_last_removed().
  */
-function path_access_schema() {
-  $schema['path_access'] = array(
-    'fields' => array(
-      'pid' => array(
-        'type' => 'serial',
-        'not null' => TRUE,
-      ),
-      'rid' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'pages' => array(
-        'type' => 'text',
-      ),
-      'visibility' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-    'indexes' => array(
-      'rid' => array('rid'),
-    ),
-    'primary key' => array('pid'),
-  );
-  return $schema;
-}
-
-/**
- * Update 6100: Set {path_access}.pid SERIAL NOT NULL AUTO_INCREMENT.
- */
-function path_access_update_6100() {
-  $ret = array();
-  $ret[] = update_sql("ALTER TABLE {path_access} CHANGE pid pid SERIAL NOT NULL AUTO_INCREMENT");
-  return $ret;
-}
-
-/**
- * Update 7100: Increase path_access' weight so that its the last thing that runs.
- */
-function path_access_update_7100() {
-  db_update('system')
-    ->fields(array('weight' => 1001))
-    ->condition('name', 'path_access')
-    ->execute();
+function path_access_update_last_removed() {
+  // Removed 6100 and 7100. 7100 only relates to setting the module weight,
+  // which we do in hook_install.
+  return 7100;
 }
 
 /**
  * Implements hook_install().
  */
 function path_access_install() {
-  db_update('system')
-    ->fields(array('weight' => 1001))
-    ->condition('name', 'path_access')
-    ->execute();
+  module_set_weight('path_access', 1001);
+}
+
+/**
+ * Update Path Access from Drupal 7 to Backdrop CMS
+ */
+function path_access_update_1000() {
+  // Only proceed if the the path_access database table exists.
+  if (db_table_exists('path_access')) {
+    // Get user roles from site.
+    $system_roles = user_roles(FALSE, NULL, TRUE);
+
+    // Set config prefix.
+    $config_prefix = 'path_access.settings';
+
+    // Get config from database.
+    $query = db_select('path_access', 'pa')
+      ->fields('pa', array('pid', 'rid', 'pages', 'visibility'));
+    $results = $query->execute();
+
+    // Loop through the existing config.
+    foreach ($results as $row) {
+      // Define the role machine 'name' based on whether a default or using the
+      // role ID (rid).
+      switch ($row->rid) {
+        case 1:
+          $role_name = 'anonymous';
+          break;
+        case 2:
+          $role_name = 'authenticated';
+          break;
+        default:
+          $role_name = $row->rid;
+      }
+      // Define the config.
+      $role_config = array(
+        'name' => $config_prefix . '.' . $role_name,
+        'label' => $system_roles[$role_name]->label,
+        'visibility_option' => ($row->visibility) ? 'allow_list' : 'deny_list',
+        'pages' => preg_split("/\r\n|\n|\r/", $row->pages),
+      );
+      // Create and save the config.
+      $config = config($role_config['name']);
+      $config->setMultiple($role_config);
+      $config->save();
+    }
+    // Drop the table used for Path Access config.
+    db_drop_table('path_access');
+  }
+  else {
+    return t('<em>Path Access</em> database table not found. Nothing to be done.');
+  }
+
+}
+
+/**
+ * Implements hook_update_dependencies().
+ */
+function path_access_update_dependencies() {
+  // Indicate that the path_access_update_1001() function provided by this
+  // module must run before the user_update_1007() function from the user
+  // module.
+  $dependencies['user'][1007] = array(
+    'path_access' => 1000,
+  );
+  return $dependencies;
 }
