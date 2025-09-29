@@ -71,16 +71,3 @@ function path_access_update_1000() {
   }
 
 }
-
-/**
- * Implements hook_update_dependencies().
- */
-function path_access_update_dependencies() {
-  // Indicate that the path_access_update_1001() function provided by this
-  // module must run before the user_update_1007() function from the user
-  // module.
-  $dependencies['user'][1007] = array(
-    'path_access' => 1000,
-  );
-  return $dependencies;
-}
