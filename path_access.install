@@ -53,13 +53,13 @@ function path_access_update_1000() {
       }
       // Define the config.
       $role_config = array(
-        'name' => $config_prefix . '.' . $role_name,
+        'name' => $role_name,
         'label' => $system_roles[$role_name]->label,
         'visibility_option' => ($row->visibility) ? 'allow_list' : 'deny_list',
         'pages' => preg_split("/\r\n|\n|\r/", $row->pages),
       );
       // Create and save the config.
-      $config = config($role_config['name']);
+      $config = config($config_prefix . '.' . $role_name);
       $config->setMultiple($role_config);
       $config->save();
     }
@@ -69,5 +69,25 @@ function path_access_update_1000() {
   else {
     return t('<em>Path Access</em> database table not found. Nothing to be done.');
   }
+}
 
+/**
+ * Update config to simplify the name key by removing the config prefix.
+ */
+function path_access_update_1001() {
+  // Get a list of config files for the system roles.
+  $config_prefix = 'path_access.settings';
+  $config_names = config_get_names_with_prefix($config_prefix);
+
+  // Loop through each config.
+  foreach ($config_names as $config_name) {
+    $config = config($config_name);
+    // Get the existing name.
+    $name_key = $config->get('name');
+    // Remove the prefix.
+    $name_key = str_replace($config_prefix . '.', '', $name_key);
+    // Set and save the new name.
+    $config->set('name', $name_key);
+    $config->save();
+  }
 }

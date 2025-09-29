@@ -266,7 +266,7 @@ function path_access_admin_configure_form($form, &$form_state, $role) {
   // Set the name_key and label_key values.
   $form['name'] = array(
     '#type' => 'value',
-    '#value' => $config_name,
+    '#value' => $role->name,
   );
   $form['label'] = array(
     '#type' => 'value',
