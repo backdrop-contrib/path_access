@@ -34,6 +34,13 @@ function path_access_preprocess_page(&$page) {
  */
 function path_access_menu_alter(&$items) {
   foreach ($items as $path => &$item) {
+    // Prevent the module from interferring with system callbacks.
+    $item_module = $item['module'] ?? '';
+    $item_type = $item['type'] ?? MENU_NORMAL_ITEM;
+    if ($item_module == 'system' && $item_type == MENU_CALLBACK) {
+      $check_item = $item;
+      continue;
+    }
     chain_menu_access_chain($items, $path, '_path_access_check_permission');
   }
 }
